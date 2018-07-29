@@ -1,4 +1,4 @@
-*.un~
+*~
 *.pyc
 config.py
 venv
