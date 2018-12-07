@@ -1,0 +1,18 @@
+<html>
+<h1>Hiya</h1>
+<p>You're listening to {{current_song}} by {{artist}} on {{device}}.</p>
+<h2>Volume</h2>
+<form action="/" method="post">
+<select name="volume" size=11 onchange="this.form.submit()">
+{% for i in range(5) %}
+  <option value="{{ min + step_low*i }}">{{ '- ' * (5 - i) }}</option>
+{% endfor %}
+  <option value="{{volume}}" selected>{{volume}}%</option>
+{% for i in range(1, 6) %}
+  <option value="{{ volume + step_high*i }}">{{ '+' * i }}</option>
+{% endfor %}
+</select>
+<br><br>
+<input type="submit">
+</form>
+</html>
