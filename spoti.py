@@ -25,6 +25,23 @@ spotify = oauth.register(
     authorize_url='https://accounts.spotify.com/authorize'
 )
 
+@app.route('/songs', methods=['GET'])
+def songs():
+    r = requests.get('https://api.spotify.com/v1/me/top/tracks',
+        params =    {   "limit": 50,
+                        "time_range": "short_term"},
+        headers =   {   "Authorization": "Bearer {}".format(session['oauth_token']),
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"})
+
+    print(r.status_code)
+    print(r.text)
+    pp.pprint(r.json())
+    tracks = []
+    for track in r.json()['items']:
+        tracks.append('{} - {}'.format(track['name'], ' & '.join([ i['name'] for i in track['artists'] ])))
+
+    return '<br>'.join(tracks)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
