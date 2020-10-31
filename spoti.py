@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for, session, request, render_template
-from authlib.flask.client import OAuth
+from authlib.integrations.flask_client import OAuth
 import requests
 import pprint
 from config import app_client_id, app_client_secret, app_session_key
@@ -19,7 +19,7 @@ spotify = oauth.register(
     # Change the scope to match whatever it us you need
     # list of scopes can be found in the url below
     # https://developer.spotify.com/web-api/using-scopes/
-    client_kwargs={'scope': 'user-top-read user-modify-playback-state user-read-playback-state'},
+    client_kwargs={'scope': 'user-top-read user-modify-playback-state user-read-playback-state playlist-modify-public'},
     request_token_url=None,
     access_token_url='https://accounts.spotify.com/api/token',
     authorize_url='https://accounts.spotify.com/authorize'
@@ -48,6 +48,9 @@ def index():
     if 'oauth_token' not in session:
         return redirect(url_for('login'))
 
+    return session['oauth_token']
+
+"""
     if request.method == 'POST':
         if 'volume' in request.form:
             if 0 <= int(request.form['volume']) <= 100:
@@ -74,7 +77,7 @@ def index():
     step_low = (volume - min) // 5
     step_high = (max - volume) // 6
     return render_template('main.html', current_song=current_song, volume=volume, device=device, artist=artist, min=min, max=max, step_low=step_low, step_high=step_high)
-
+"""
 
 @app.route('/login')
 def login():
