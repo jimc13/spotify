@@ -40,7 +40,7 @@ class SpotifyAPI:
     def get_playlist_tracks(self, playlist_id):
         r = self.get(f"/playlists/{playlist_id}/tracks")
         for track in r.json()["items"]:
-            yield track["track"]["uri"]
+            yield track
 
     def create_playlist(self, tracks, name=None):
         if not name:
@@ -63,5 +63,7 @@ if __name__ == "__main__":
     tracks = []
     for playlist in playlists:
         for track in spotify.get_playlist_tracks(playlist):
-            tracks.append(track)
+            tracks.append({"added_at": track["added_at"], "uri": track["track"]["uri"]})
+    tracks.sort(key=lambda x: x["added_at"])
+    tracks = list(map(lambda x: x["uri"], tracks))
     print(spotify.create_playlist(tracks, name="Songs of the weeks"))
