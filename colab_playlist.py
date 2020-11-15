@@ -4,7 +4,6 @@ from config import oauth_token, playlists
 
 # TODO:
 # Update get_playlist_tracks to handle more than 100 tracks in a playlist
-# Create update_playlist
 # Add support for whatever Google's music service is called at the time of reaching this
 
 # Token is currently being created using spoti.py and put into config by hand
@@ -26,6 +25,13 @@ class SpotifyAPI:
     def get(self, uri):
         r = requests.get(f"https://api.spotify.com/v1{uri}",
             headers =  self.headers)
+        r.raise_for_status()
+        return r
+
+    def put(self, uri, json):
+        r = requests.put(f"https://api.spotify.com/v1{uri}",
+            json = json,
+            headers = self.headers)
         r.raise_for_status()
         return r
 
@@ -54,8 +60,9 @@ class SpotifyAPI:
 
         return playlist_id
 
-    def update_playlist(self, tracks, name):
-        pass
+    def update_playlist(self, tracks, playlist_id):
+        for chunk_of_tracks in chunks(tracks, 100):
+            self.put(f"/playlists/{playlist_id}/tracks", {"uris": chunk_of_tracks})
 
 if __name__ == "__main__":
     spotify = SpotifyAPI(oauth_token)
@@ -65,4 +72,11 @@ if __name__ == "__main__":
             tracks.append({"added_at": track["added_at"], "uri": track["track"]["uri"]})
     tracks.sort(key=lambda x: x["added_at"])
     tracks = list(map(lambda x: x["uri"], tracks))
-    print(spotify.create_playlist(tracks, name="Songs of the weeks"))
+    # If a playlist_id is provided in the config update it, otherwise create a
+    # new one
+    try:
+        from config import playlist_id
+    except ImportError:
+        print("Created with Playlist ID:", spotify.create_playlist(tracks, name="Songs of the weeks"))
+    else:
+        spotify.update_playlist(tracks, playlist_id)
