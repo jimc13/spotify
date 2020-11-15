@@ -3,7 +3,6 @@ import datetime
 from config import oauth_token, playlists
 
 # TODO:
-# Order songs by date added
 # Update get_playlist_tracks to handle more than 100 tracks in a playlist
 # Create update_playlist
 # Add support for whatever Google's music service is called at the time of reaching this
