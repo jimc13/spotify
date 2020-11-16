@@ -1,6 +1,6 @@
 import requests
 import datetime
-from config import oauth_token, playlists
+from config import playlists, refresh_token, app_client_id, app_client_secret
 
 # TODO:
 # Update get_playlist_tracks to handle more than 100 tracks in a playlist
@@ -14,6 +14,18 @@ def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
+
+def refresh_oauth_token():
+    data = {    "grant_type": "refresh_token",
+                "refresh_token": refresh_token}
+    headers = { "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"}
+    r = requests.post(  "https://accounts.spotify.com/api/token",
+                        headers=headers,
+                        auth=(app_client_id, app_client_secret),
+                        data=data)
+    r.raise_for_status()
+    return r.json()["access_token"]
 
 class SpotifyAPI:
     def __init__(self, oauth_token):
@@ -65,6 +77,8 @@ class SpotifyAPI:
             self.put(f"/playlists/{playlist_id}/tracks", {"uris": chunk_of_tracks})
 
 if __name__ == "__main__":
+    # This will be run daily so the oauth token will always be more than 1h old
+    oauth_token = refresh_oauth_token()
     spotify = SpotifyAPI(oauth_token)
     tracks = []
     for playlist in playlists:
