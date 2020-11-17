@@ -23,7 +23,8 @@ def refresh_oauth_token():
     r = requests.post(  "https://accounts.spotify.com/api/token",
                         headers=headers,
                         auth=(app_client_id, app_client_secret),
-                        data=data)
+                        data=data,
+                        timeout=5)
     r.raise_for_status()
     return r.json()["access_token"]
 
@@ -36,21 +37,24 @@ class SpotifyAPI:
 
     def get(self, uri):
         r = requests.get(f"https://api.spotify.com/v1{uri}",
-            headers =  self.headers)
+            headers =  self.headers,
+            timeout=5)
         r.raise_for_status()
         return r
 
     def put(self, uri, json):
         r = requests.put(f"https://api.spotify.com/v1{uri}",
             json = json,
-            headers = self.headers)
+            headers = self.headers,
+            timeout=5)
         r.raise_for_status()
         return r
 
     def post(self, uri, json):
         r = requests.post(f"https://api.spotify.com/v1{uri}",
             json = json,
-            headers = self.headers)
+            headers = self.headers,
+            timeout=5)
         r.raise_for_status()
         return r
 
