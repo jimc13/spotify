@@ -76,7 +76,7 @@ class SpotifyAPI:
         for chunk_of_tracks in chunks(tracks, 100):
             self.put(f"/playlists/{playlist_id}/tracks", {"uris": chunk_of_tracks})
 
-if __name__ == "__main__":
+def main():
     # This will be run daily so the oauth token will always be more than 1h old
     oauth_token = refresh_oauth_token()
     spotify = SpotifyAPI(oauth_token)
@@ -94,3 +94,6 @@ if __name__ == "__main__":
         print("Created with Playlist ID:", spotify.create_playlist(tracks, name="Songs of the weeks"))
     else:
         spotify.update_playlist(tracks, playlist_id)
+
+if __name__ == "__main__":
+    main()
