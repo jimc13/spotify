@@ -1,6 +1,15 @@
-import requests
 import datetime
+import json
+import requests
 from config import playlists, refresh_token, app_client_id, app_client_secret
+
+def lambda_handler(event, context):
+    # TODO implement
+    main()
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
 
 # TODO:
 # Update get_playlist_tracks to handle more than 100 tracks in a playlist
@@ -77,8 +86,9 @@ class SpotifyAPI:
         return playlist_id
 
     def update_playlist(self, tracks, playlist_id):
+        self.put(f"/playlists/{playlist_id}/tracks", {"uris": []})
         for chunk_of_tracks in chunks(tracks, 100):
-            self.put(f"/playlists/{playlist_id}/tracks", {"uris": chunk_of_tracks})
+            self.post(f"/playlists/{playlist_id}/tracks", {"uris": chunk_of_tracks})
 
 def main():
     # This will be run daily so the oauth token will always be more than 1h old
