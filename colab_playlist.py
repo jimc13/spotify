@@ -96,8 +96,28 @@ def main():
     spotify = SpotifyAPI(oauth_token)
     tracks = []
     for playlist in playlists:
+        # Get a list of tracks which we will then reverse
+        # it will end up being sorted from newest to oldest
+        reverse_playlist_tracks = []
         for track in spotify.get_playlist_tracks(playlist):
-            tracks.append({"added_at": track["added_at"], "uri": track["track"]["uri"]})
+            reverse_playlist_tracks.append(track)
+
+        reverse_playlist_tracks.reverse()
+        last_added_timestamp = None
+        # Add tracks to the overall track list
+        for track in reverse_playlist_tracks:
+            current_track_added_timestamp = datetime.datetime.fromisoformat(track["added_at"].replace("Z", "+00:00"))
+            # If the current track was added within 2 days of the last one
+            # then update it's added timestamp to 7 days before the last one
+            # The intention is to shift groups of songs back to have them
+            # align with the past week that they would have been able to have
+            # been added
+            if last_added_timestamp and last_added_timestamp - datetime.timedelta(2) < current_track_added_timestamp:
+                current_track_added_timestamp = last_added_timestamp - datetime.timedelta(7)
+
+            tracks.append({"added_at": current_track_added_timestamp, "uri": track["track"]["uri"]})
+            last_added_timestamp = current_track_added_timestamp
+
     tracks.sort(key=lambda x: x["added_at"])
     tracks = list(map(lambda x: x["uri"], tracks))
     # If a playlist_id is provided in the config update it, otherwise create a
